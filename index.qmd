@@ -2,11 +2,13 @@
 title: "Seth Metcalfe PSY6422 Project"
 format: html
 editor: visual
+toc: true
 ---
 
 Before we begin, please make sure you have all the necessary packages installed and loaded according to the list in the README and as outlined in the code below.
 
 ```{r}
+#| output: false
 #load these libraries
 library(here)
 library(tidyverse)
@@ -33,6 +35,7 @@ Note: if you are accessing this data organically from a web search rather than t
 We will be loading the using the "here" package. Make sure you have it downloaded and loaded for this project. I saved my raw data to a subfolder called "Data." If you have done something different, edit the following code to match your chosen directory.
 
 ```{r}
+#| output: false
 #loading in the data set and assigning it the name "raw" and making it a tibble
 raw <- read_csv(here("Data", "indicators-Regionsstatistical.data.csv"))
 raw_tib <- as_tibble(raw)
@@ -73,7 +76,7 @@ My visualization is attempting to answer the following question: how have the nu
 After loading all the data, we need to clean it! To start, I checked if there are any duplicated items in the data with the following code. Thankfully, none were detected.
 
 ```{r}
-#| eval: false
+#| output: false
 #checking for duplicated data, no duplications were found
 duplicated(raw_tib)
 ```
@@ -215,7 +218,7 @@ plot_to_svg_base64 <- function(plot_obj, width = 4, height = 3) {
 }
 ```
 
-Once that was set, I could build 9 subplots for the 9 regions ussing ggplot2:
+Once that was set, I could build 9 subplots for the 9 regions using ggplot2:
 
 ```{r}
 #plot of the time series of all admissions in the North East Region
