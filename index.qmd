@@ -7,17 +7,7 @@ editor: visual
 Before we begin, please make sure you have all the necessary packages installed and loaded according to the list in the README and as outlined in the code below.
 
 ```{r}
-#install these packages if not already on your device
-install.packages("here")
-install.packages("tidyverse")
-install.packages("ggplot2")
-install.packages("naniar")
-install.packages("sf")
-install.packages("ggiraph")
-install.packages("svglite")
-install.packages("base64enc")
-
-#load those libraries
+#load these libraries
 library(here)
 library(tidyverse)
 library(ggplot2)
@@ -83,6 +73,7 @@ My visualization is attempting to answer the following question: how have the nu
 After loading all the data, we need to clean it! To start, I checked if there are any duplicated items in the data with the following code. Thankfully, none were detected.
 
 ```{r}
+#| eval: false
 #checking for duplicated data, no duplications were found
 duplicated(raw_tib)
 ```
@@ -132,7 +123,7 @@ df_all <- df %>%
   filter(Indicator_ID == 92906)
 ```
 
-### Filtering, Filtering, Filtering
+#### Filtering, Filtering, Filtering
 
 The last step of cleaning the data was creating 9 different data frames from the combined data from for the 9 regions. This is a bit arduous, but it ended up being necessary in order for me to create disparately colored regions in the final visualization.
 
@@ -182,4 +173,241 @@ m_SW <- map %>%
   filter(RGN23CD == "E12000009")
 ```
 
+Before we start the visualization creation, let's take a look at the combined data frame:
+
+```{r}
+#a glimpse of the combined df
+head(df_all)
+```
+
 # The Visualization
+
+Before building the final visualization, I first needed to create the subplots that would appear when you hover over the regions of the map. Before doing that though, I needed to build a save location to put the subplots in order to save them as tooltip items. I did this with the following code.
+
+```{r}
+#The goal of this section is to set a file path to save the subplots in a tooltip
+#to pop them up when we hover over them in the final map plot
+plot_to_svg_base64 <- function(plot_obj, width = 4, height = 3) { 
+  # Create a temporary file path
+  tmp_file <- tempfile(fileext = ".svg")
+  
+  # Save the plot object to the temporary SVG file
+  ggsave(
+    tmp_file, 
+    plot = plot_obj, 
+    device = svglite, 
+    width = width, 
+    height = height, 
+    units = "in"
+  )
+  
+  # Read the SVG content
+  svg_content <- readChar(tmp_file, file.info(tmp_file)$size)
+  
+  # Clean up the temporary file
+  unlink(tmp_file)
+  
+  # Encode the SVG content to Base64 to embed directly in HTML tooltip
+  base64_string <- base64encode(charToRaw(svg_content))
+  
+  # Return the full data URI
+  return(paste0("data:image/svg+xml;base64,", base64_string))
+}
+```
+
+Once that was set, I could build 9 subplots for the 9 regions ussing ggplot2:
+
+```{r}
+#plot of the time series of all admissions in the North East Region
+ts_all_NE <- df_all_NE %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "darkred") +
+  ylim(600, 1000) +
+  labs(title = "Admissions in the North East", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+ne_plot_svg <- plot_to_svg_base64(ts_all_NE, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the North West Region
+ts_all_NW <- df_all_NW %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "skyblue") +
+  ylim(700, 900) +
+  labs(title = "Admissions in the North West", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+nw_plot_svg <- plot_to_svg_base64(ts_all_NW, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the Yorkshire Region
+ts_all_York <- df_all_York %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "orange") +
+  ylim(400, 800) +
+  labs(title = "Admissions in Yorkshire \nand the Humber", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+theme(plot.title = element_text(size = 10, face = "bold"), 
+      axis.title = element_text(size = 8), 
+      axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+york_plot_svg <- plot_to_svg_base64(ts_all_York, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the East Midland Region
+ts_all_EM <- df_all_EM %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "orange") +
+  ylim(400, 700) +
+  labs(title = "Admissions in the East Midlands", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+em_plot_svg <- plot_to_svg_base64(ts_all_EM, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the West Midland Region
+ts_all_WM <- df_all_WM %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "darkred") +
+  ylim(400, 700) +
+  labs(title = "Admissions in the West Midlands", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+wm_plot_svg <- plot_to_svg_base64(ts_all_WM, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the East of England Region
+ts_all_EE <- df_all_EE %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "orange") +
+  ylim(300, 600) +
+  labs(title = "Admissions in the East of England", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+ee_plot_svg <- plot_to_svg_base64(ts_all_EE, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the London Region
+ts_all_Lon <- df_all_Lon %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "orange") +
+  ylim(400, 700) +
+  labs(title = "Admissions in the London Region", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+lon_plot_svg <- plot_to_svg_base64(ts_all_Lon, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the South East Region
+ts_all_SE <- df_all_SE %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "skyblue") +
+  labs(title = "Admissions in the South East", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  ylim(100, 800) +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+se_plot_svg <- plot_to_svg_base64(ts_all_SE, width = 3, height = 2.5)
+
+#plot of the time series of all admissions in the South West Region
+ts_all_SW <- df_all_SW %>% 
+  ggplot(aes(x = Time_Period, y = Value)) +
+  geom_point(color = "black") +
+  geom_line(aes(group = "Area_Name"), color = "orange") +
+  labs(title = "Admissions in the South West", 
+       x = "Years", 
+       y = "Number of Admissions (per 100,000)") +
+  ylim(400, 800) +
+  theme_classic() +
+  theme(plot.title = element_text(size = 10, face = "bold"), 
+        axis.title = element_text(size = 8), 
+        axis.text = element_text(size = 7, angle = 45, hjust = 1, vjust = 1))
+sw_plot_svg <- plot_to_svg_base64(ts_all_SW, width = 3, height = 2.5)
+```
+
+Finally, we could build the overall visualization. As a quick precursor, I set a vector to contain the colors I wanted for each region.
+
+```{r}
+#begin by setting a vector of the colors used in the legend
+colors_legend <- c("Increasing" = "darkred", 
+                   "Decreasing" = "skyblue", 
+                   "No Significant Change" = "orange")
+```
+
+And now the plot!
+
+```{r}
+#plotting the map
+final <- ggplot() +
+  geom_sf_interactive(data = m_NE, size = .5, color = "black", aes(fill = "Increasing", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                         "Change: Increasing<br><br>",
+                                                                                                         '<img src="', ne_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_NW, size = .5, color = "black", aes(fill = "Decreasing", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                         "Change: Decreasing<br><br>",
+                                                                                                         '<img src="', nw_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_York, size = .5, color = "black", aes(fill = "No Significant Change", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                                      "Change: No Significant Change<br><br>",
+                                                                                                                      '<img src="', york_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_EM, size = .5, color = "black", aes(fill = "No Significant Change", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                                    "Change: No Significant Change<br><br>",
+                                                                                                                    '<img src="', em_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_WM, size = .5, color = "black", aes(fill = "Increasing", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                         "Change: Increasing<br><br>",
+                                                                                                         '<img src="', wm_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_EE, size = .5, color = "black", aes(fill = "No Significant Change", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                                    "Change: No Significant Change<br><br>",
+                                                                                                                    '<img src="', ee_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_Lon, size = .5, color = "black", aes(fill = "No Significant Change", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                                     "Change: No Significant Change<br><br>",
+                                                                                                                     '<img src="', lon_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_SE, size = .5, color = "black", aes(fill = "Decreasing", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                         "Change: Decreasing<br><br>",
+                                                                                                         '<img src="', se_plot_svg, '" width="300" height="250" />'))) +
+  geom_sf_interactive(data = m_SW, size = .5, color = "black", aes(fill = "No Significant Change", tooltip = paste0("<b>", RGN23NM, "</b><br>", 
+                                                                                                                    "Change: No Significant Change<br><br>",
+                                                                                                                    '<img src="', sw_plot_svg, '" width="300" height="250" />'))) +
+  ggtitle("Changes in Alcohol-Specific Hospital Admissions Since 2016") +
+  theme_void() +
+  theme(panel.grid = element_line(color = "transparent")) +
+  labs(fill = "Legend",
+       subtitle = "Across England's Nine Regions") +
+  scale_fill_manual(values = colors_legend) +
+  theme(plot.title = element_text(size = 15, hjust = 0)) +
+  theme(plot.subtitle = element_text(size = 10, hjust = 0.95)) +
+  theme(legend.position = "right")
+
+girafe(ggobj = final)
+```
+
+# Summary
+
+I have learned a lot through the creation of this project. The most guided section was tidying the data; we covered all of the functions and cleaning items during the lectures, which meant that I was quite ready when it came to tidying and transforming my data into something usable. The creation of the subplots was also fairly straightforward from the lecture material. On the other hand, creating map graphs was something I had to learn on my own, which was a bit of a learning curve. I think it was valuable especially in helping me know how to search online and how to read the information that other coders had put online. Similarly, this project aided me in learning how to use AI in diagnosing errors in my code and suggesting edits to produce desired outputs. If I were to have more time, I would consider creating a second plot looking at a different indicator to compare the two. For example, I might look at the data on alcohol-specific admissions for patients under the age of 18 and plot it side-by-side with the current graph as a comparative tool. Overall, I feel much more equipped in creating visualizations that are functional and interactive as well as more equipped to use the many tools and resources that support the actual coding process.
