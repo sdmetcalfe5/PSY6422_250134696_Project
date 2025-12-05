@@ -1,0 +1,11 @@
+---
+title: "Seth Metcalfe PSY6422 Project"
+format: html
+editor: visual
+---
+
+# The Data
+
+For this project, I used a data set from the UK Department of Health and Social Care called "Alcohol Profile 2024." You can access this data set [here](https://fingertips.phe.org.uk/profile/local-alcohol-profiles/data#page/9/gid/1938132984/pat/15/par/E92000001/ati/6/are/E12000008/iid/92906/age/1/sex/4/cat/-1/ctp/-1/yrr/1/cid/4/tbm/1/page-options/ine-yo-1:2023:-1:-1_ine-ct-146_ine-pt-0_tre-ao-0). To download the correct data set, scroll down on the linked webpage to the "Get the data" section. There are three subheadings, the first of which is "Profile: Alcohol Profile." Under that are two hyper-linked data sets. The correct data set to download is the first one, which is called "Data for Government Office Region (E12)."
+
+Note: there are three hyper-links called "Data for Government Office Region (E12)." We only need the one from the "Profile: Alcohol Profile" heading.
