@@ -4,8 +4,182 @@ format: html
 editor: visual
 ---
 
-# The Data
+Before we begin, please make sure you have all the necessary packages installed and loaded according to the list in the README and as outlined in the code below.
 
-For this project, I used a data set from the UK Department of Health and Social Care called "Alcohol Profile 2024." You can access this data set [here](https://fingertips.phe.org.uk/profile/local-alcohol-profiles/data#page/9/gid/1938132984/pat/15/par/E92000001/ati/6/are/E12000008/iid/92906/age/1/sex/4/cat/-1/ctp/-1/yrr/1/cid/4/tbm/1/page-options/ine-yo-1:2023:-1:-1_ine-ct-146_ine-pt-0_tre-ao-0). To download the correct data set, scroll down on the linked webpage to the "Get the data" section. There are three subheadings, the first of which is "Profile: Alcohol Profile." Under that are two hyper-linked data sets. The correct data set to download is the first one, which is called "Data for Government Office Region (E12)."
+```{r}
+#install these packages if not already on your device
+install.packages("here")
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("naniar")
+install.packages("sf")
+install.packages("ggiraph")
+install.packages("svglite")
+install.packages("base64enc")
+
+#load those libraries
+library(here)
+library(tidyverse)
+library(ggplot2)
+library(naniar)
+library(sf)
+library(ggiraph)
+library(svglite)
+library(base64enc)
+```
+
+# The Data Origins
+
+## The Alcohol Profile Data
+
+For this project, I used a data set from the UK Department of Health and Social Care called "Alcohol Profile 2025." You can access this data set [here](https://fingertips.phe.org.uk/profile/local-alcohol-profiles/data#page/9/gid/1938132984/pat/15/par/E92000001/ati/6/are/E12000008/iid/92906/age/1/sex/4/cat/-1/ctp/-1/yrr/1/cid/4/tbm/1/page-options/ine-yo-1:2023:-1:-1_ine-ct-146_ine-pt-0_tre-ao-0). To download the correct data set, scroll down on the linked webpage to the "Get the data" section. There are three subheadings, the first of which is "Profile: Alcohol Profile." Under that are two hyper-linked data sets. The correct data set to download is the first one, which is called "Data for Government Office Region (E12)." Because I am using the "here" package, I saved the downloaded data to my project in a new subfolder called "Data."
 
 Note: there are three hyper-links called "Data for Government Office Region (E12)." We only need the one from the "Profile: Alcohol Profile" heading.
+
+Note: if you are accessing this data organically from a web search rather than through the provided link, be sure to change the "Area type" tab to "Regions (Statistical)" to ensure you download the data set that includes statistics across the regions of England.
+
+#### Loading the Data 
+
+We will be loading the using the "here" package. Make sure you have it downloaded and loaded for this project. I saved my raw data to a subfolder called "Data." If you have done something different, edit the following code to match your chosen directory.
+
+```{r}
+#loading in the data set and assigning it the name "raw" and making it a tibble
+raw <- read_csv(here("Data", "indicators-Regionsstatistical.data.csv"))
+raw_tib <- as_tibble(raw)
+```
+
+After loading the data, I immediately transformed the data into a tibble to make the following tidying and filtering of the data easier for R Studio to read.
+
+#### Viewing and Understanding the Data
+
+The data was collected by the Department of Health and Social Care as part of an initiative by the Office for Health Improvement and Disparities to track different alcohol-related indicators in the United Kingdom. There are 24 different indicators tracked in this profile, including such things as alcohol-related mortality, under 75 mortality rate from alcoholic liver disease, and admission episodes for alcohol-specific conditions. This data has been collected from public health services such as hospitals and health centres across the UK. For this project, we are specifically looking at the indicator of "admission episodes for alcohol-specific conditions." Let's take a look at the beginning of the raw data.
+
+```{r}
+#getting a first look at the raw data
+head(raw_tib)
+```
+
+The data has 27 columns of variables, most of which are not pertinent for creating my visualization. Immediately, you can see indicator data including the names of the indicators and their respective ID numbers. We can also see region data under the "Area Name" and "Area Code" columns. There is also information for age and sex of patients. Probably the most important variable is the "Value" column, which gives information pertinent to each indicator. In the case of my project, the Value variable is telling us how many Alcohol-Specific Admissions occurred per 100,000 people in the given years and regions.
+
+## The Shapefile Data to Build the Map
+
+In order to build the map itself, we need a shapefile of England's nine regions (which include the North East, North West, Yorkshire and the Humber, East Midlands, West Midlands, East of England, London, South East, and South West). I obtained this shapefile from the Open Geography Portal by the Office of National Statistics. The shapefile called "Regions (December 2023) Boundaries EN BGC." You can download the shapefile [here](https://geoportal.statistics.gov.uk/datasets/6acd1e2fc3d1482e9f5da27d935216dd_0/explore?location=52.391944%2C-2.489483%2C6.71). On this linked webpage, hit download on the left-hand side, and when you do, ten download options will be available. Choose the second option called "Shapefile." Because I am using the "here" package, I saved the downloaded data to my project in the "Data" subfolder, like before.
+
+Note: this download will need to be unzipped in order to access it.
+
+Load the Shapefile using the code below.
+
+```{r}
+#loading the map data
+map <- read_sf(here("Data", "Regions_December_2023_Boundaries_EN_BGC_7009286823150963379"))
+```
+
+# Research Question
+
+My visualization is attempting to answer the following question: how have the numbers of alcohol-specific hospital admissions changed in each region of England since the year 2016? I suppose this is a very specific question, but hopefully through this visualization, it will be clear if the different regions of England are getting better or worse when it comes to their problematic alcohol use. I will urge viewers not to misunderstand or misrepresent the data. This is a measure of change, not a comparative measure of admissions in total. You might notice that the North West region is getting better, while the West Midlands is getting worse. However, in total, the North West region has roughly 150 more admissions per 100,000 than the West Midlands, which means that their drinking behavior is more problematic than the West Midlands according to total admissions. The graph is showcasing positive and negative trends in alcohol consumption, not comparing which regions are healthier (in a manner of speaking) than others.
+
+# Data Preparation
+
+After loading all the data, we need to clean it! To start, I checked if there are any duplicated items in the data with the following code. Thankfully, none were detected.
+
+```{r}
+#checking for duplicated data, no duplications were found
+duplicated(raw_tib)
+```
+
+After that, I ran a few pieces of code to make the variable names cleaner. Primarily, that meant removing spaces in the variables of interest and their respective column data observations. The following code replaces any spaces with underscores for four of the variables of interest and all observations.
+
+```{r}
+#renaming relevant variables to remove spaces
+names(raw_tib)[names(raw_tib) == "Indicator ID"] <- "Indicator_ID"
+names(raw_tib)[names(raw_tib) == "Area Name"] <- "Area_Name"
+names(raw_tib)[names(raw_tib) == "Time period"] <- "Time_Period"
+names(raw_tib)[names(raw_tib) == "Area Code"] <- "Area_Code"
+
+#replacing spaces in the data with underscores
+raw_cleaned <- raw_tib %>%
+  mutate_if(is.character, str_replace_all, ' ', '_')
+```
+
+Next, I went through and selected only the variables and observations from the raw data that I needed for my visualization. I called this new data frame "df", and those variables included Indicator_ID, Area_Name, Time_Period, and Value. Within them, I needed to make sure I was only getting region specific information, so I filtered out the area code for England as a whole. I also filtered out all the indicators that I wasn't using and made sure that we were using sex data from all persons, not just males or females.
+
+```{r}
+#filtering and selecting the relevant data
+df <- raw_cleaned %>% 
+  filter(Indicator_ID == 92906) %>% 
+  filter(Area_Code != "E92000001") %>% 
+  filter(Sex == "Persons") %>% 
+  select(Indicator_ID, Area_Name, Time_Period, Value)
+```
+
+Using the nanair package, I also removed any missing pieces of data.
+
+```{r}
+#removing missing data
+df <- drop_na(df)
+```
+
+The last two steps in cleaning the overall data were to round the observations in the Value column to the nearest whole number at to filter for only the correct indicator. I rounded the variables because the Department of Health and Social Care did the same when they created their own visualizations of their data. Why should I decide to do otherwise? The filtering step may seem unnecessary, but I have kept it primarily as a renaming function which was necessary for my following code. (Originally, I was using two indicators so two names were needed. As changes were made, I kept the naming conventions to reduce the risk of personal mistakes.)
+
+```{r}
+#rounding values to nearest whole number 
+#(I made this decision only because the original data source did the same)
+df <- df %>% 
+  mutate_if(is.numeric, round)
+
+#filtering further to separate 92906 data from the rest of the tibble
+df_all <- df %>% 
+  filter(Indicator_ID == 92906)
+```
+
+### Filtering, Filtering, Filtering
+
+The last step of cleaning the data was creating 9 different data frames from the combined data from for the 9 regions. This is a bit arduous, but it ended up being necessary in order for me to create disparately colored regions in the final visualization.
+
+```{r}
+#list of filters for the region types of all admission
+df_all_NE <- df_all %>% 
+  filter(Area_Name == "North_East_region_(statistical)")
+df_all_NW <- df_all %>% 
+  filter(Area_Name == "North_West_region_(statistical)")
+df_all_York <- df_all %>% 
+  filter(Area_Name == "Yorkshire_and_the_Humber_region_(statistical)")
+df_all_EM <- df_all %>% 
+  filter(Area_Name == "East_Midlands_region_(statistical)")
+df_all_WM <- df_all %>% 
+  filter(Area_Name == "West_Midlands_region_(statistical)")
+df_all_EE <- df_all %>% 
+  filter(Area_Name == "East_of_England_region_(statistical)")
+df_all_Lon <- df_all %>% 
+  filter(Area_Name == "London_region_(statistical)")
+df_all_SE <- df_all %>% 
+  filter(Area_Name == "South_East_region_(statistical)")
+df_all_SW <- df_all %>% 
+  filter(Area_Name == "South_West_region_(statistical)")
+```
+
+Similarly, I had to separate out the data from the Shapefile for the 9 regions.
+
+```{r}
+#filtering regions from the map
+m_NE <- map %>% 
+  filter(RGN23CD == "E12000001")
+m_NW <- map %>% 
+  filter(RGN23CD == "E12000002")
+m_York <- map %>% 
+  filter(RGN23CD == "E12000003")
+m_EM <- map %>% 
+  filter(RGN23CD == "E12000004")
+m_WM <- map %>% 
+  filter(RGN23CD == "E12000005")
+m_EE <- map %>% 
+  filter(RGN23CD == "E12000006")
+m_Lon <- map %>% 
+  filter(RGN23CD == "E12000007")
+m_SE <- map %>% 
+  filter(RGN23CD == "E12000008")
+m_SW <- map %>% 
+  filter(RGN23CD == "E12000009")
+```
+
+# The Visualization
