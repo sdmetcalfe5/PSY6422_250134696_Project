@@ -325,3 +325,5 @@ final <- ggplot() +
   theme(legend.position = "right")
 
 girafe(ggobj = final)
+
+#end of script

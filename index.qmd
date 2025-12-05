@@ -9,7 +9,7 @@ Before we begin, please make sure you have all the necessary packages installed 
 
 ```{r}
 #| output: false
-#load these libraries
+#load these packages
 library(here)
 library(tidyverse)
 library(ggplot2)
