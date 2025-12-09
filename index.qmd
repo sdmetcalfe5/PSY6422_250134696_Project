@@ -32,7 +32,7 @@ Note: if you are accessing this data organically from a web search rather than t
 
 #### Loading the Data
 
-We will be loading the using the "here" package. Make sure you have it downloaded and loaded for this project. I saved my raw data to a subfolder called "Data." If you have done something different, edit the following code to match your chosen directory.
+We will be loading the data using the "here" package. Make sure you have it downloaded and loaded for this project. I saved my raw data to a subfolder called "Data." If you have done something different, edit the following code to match your chosen directory.
 
 ```{r}
 #| output: false
@@ -56,7 +56,7 @@ The data has 27 columns of variables, most of which are not pertinent for creati
 
 ## The Shapefile Data to Build the Map
 
-In order to build the map itself, we need a shapefile of England's nine regions (which include the North East, North West, Yorkshire and the Humber, East Midlands, West Midlands, East of England, London, South East, and South West). I obtained this shapefile from the Open Geography Portal by the Office of National Statistics. The shapefile called "Regions (December 2023) Boundaries EN BGC." You can download the shapefile [here](https://geoportal.statistics.gov.uk/datasets/6acd1e2fc3d1482e9f5da27d935216dd_0/explore?location=52.391944%2C-2.489483%2C6.71). On this linked webpage, hit download on the left-hand side, and when you do, ten download options will be available. Choose the second option called "Shapefile." Because I am using the "here" package, I saved the downloaded data to my project in the "Data" subfolder, like before.
+In order to build the map itself, we need a shapefile of England's nine regions (which include the North East, North West, Yorkshire and the Humber, East Midlands, West Midlands, East of England, London, South East, and South West). I obtained this shapefile from the Open Geography Portal by the Office of National Statistics. The shapefile is called "Regions (December 2023) Boundaries EN BGC." You can download the shapefile [here](https://geoportal.statistics.gov.uk/datasets/6acd1e2fc3d1482e9f5da27d935216dd_0/explore?location=52.391944%2C-2.489483%2C6.71). On this linked webpage, hit download on the left-hand side, and when you do, ten download options will be available. Choose the second option called "Shapefile." Because I am using the "here" package, I saved the downloaded data to my project in the "Data" subfolder, like before.
 
 Note: this download will need to be unzipped in order to access it.
 
