@@ -12,7 +12,7 @@ install.packages("ggiraph")
 install.packages("svglite")
 install.packages("base64enc")
 
-#load those libraries
+#load those packages
 library(naniar)
 library(here)
 library(ggplot2)
