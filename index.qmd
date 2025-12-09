@@ -45,7 +45,7 @@ After loading the data, I immediately transformed the data into a tibble to make
 
 #### Viewing and Understanding the Data
 
-The data was collected by the Department of Health and Social Care as part of an initiative by the Office for Health Improvement and Disparities to track different alcohol-related indicators in the United Kingdom. There are 24 different indicators tracked in this profile, including such things as alcohol-related mortality, under 75 mortality rate from alcoholic liver disease, and admission episodes for alcohol-specific conditions. This data has been collected from public health services such as hospitals and health centres across the UK. For this project, we are specifically looking at the indicator of "admission episodes for alcohol-specific conditions." Let's take a look at the beginning of the raw data.
+The data was collected by the Department of Health and Social Care as part of an initiative by the Office for Health Improvement and Disparities to track different alcohol-related indicators in the United Kingdom. There are 43 different indicators tracked in this profile, including such things as alcohol-related mortality, under 75 mortality rate from alcoholic liver disease, and admission episodes for alcohol-specific conditions. This data has been collected from public health services such as hospitals and health centres across the UK. For this project, we are specifically looking at the indicator of "admission episodes for alcohol-specific conditions." Let's take a look at the beginning of the raw data.
 
 ```{r}
 #getting a first look at the raw data
