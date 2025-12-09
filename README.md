@@ -38,6 +38,8 @@ n order to build the map itself, we need a shapefile of England's nine regions (
 
 -   The Data folder contains the raw data in the form of a csv file as well as the unzipped data for the shapefile.
 
+-   The AlcoholProfile.metadata.csv file is the codebook that gives explanations of the indicators and variables within the data set.
+
 -   The LICENSE contains information on the MIT license used for this repository.
 
 -   The PSY6422_250134696.R file contains all the original code I completed before creating this repository.
@@ -47,5 +49,3 @@ n order to build the map itself, we need a shapefile of England's nine regions (
 -   This is the README file to provide the overall structure of the repository and provide precursor information to run the visualization's code.
 
 -   The index files are where the code for the quarto page are located.
-
--   The AlcoholProfile.metadata.csv file is the codebook that gives explanations of the indicators and variables within the data set.
