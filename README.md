@@ -48,4 +48,4 @@ In order to build the map itself, we need a shapefile of England's nine regions 
 
 -   This is the README file to provide the overall structure of the repository and provide precursor information to run the visualization's code.
 
--   The index files are where the code for the quarto page are located.
+-   The index files are where the code for the quarto page is located.
