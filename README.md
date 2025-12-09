@@ -46,8 +46,8 @@ In order to build the map itself, we need a shapefile of England's nine regions 
 
 -   The PSY6422_250134696_Project.Rproj is the project in R Studio where the code and quarto files are held.
 
+-   The PSY6422_Project_250134696.qmd is the quarto file to create the webpage.
+
 -   This is the README file to provide the overall structure of the repository and provide precursor information to run the visualization's code.
 
 -   The index files are where the code for the quarto page is located.
-
--   The PSY6422_Project_250134696.qmd is the quarto file to create the webpage.
