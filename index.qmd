@@ -30,7 +30,7 @@ Note: there are three hyper-links called "Data for Government Office Region (E12
 
 Note: if you are accessing this data organically from a web search rather than through the provided link, be sure to change the "Area type" tab to "Regions (Statistical)" to ensure you download the data set that includes statistics across the regions of England.
 
-#### Loading the Data 
+#### Loading the Data
 
 We will be loading the using the "here" package. Make sure you have it downloaded and loaded for this project. I saved my raw data to a subfolder called "Data." If you have done something different, edit the following code to match your chosen directory.
 
@@ -128,7 +128,7 @@ df_all <- df %>%
 
 #### Filtering, Filtering, Filtering
 
-The last step of cleaning the data was creating 9 different data frames from the combined data from for the 9 regions. This is a bit arduous, but it ended up being necessary in order for me to create disparately colored regions in the final visualization.
+The last step of cleaning the data was creating 9 different data frames from the combined data for the 9 regions. This is a bit arduous, but it ended up being necessary in order for me to create disparately colored regions in the final visualization.
 
 ```{r}
 #list of filters for the region types of all admission
